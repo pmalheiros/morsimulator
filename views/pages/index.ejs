@@ -1,44 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	<% include ../partials/head %>
-</head>
-<body>
-	<div class="container">
+<html>
+  <head>
+    <title>MORSimulator - coming soon</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <% if (config.properties.projectStage == 'Productive') { %><!--script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-		<header>
-			<% include ../partials/header %>
-		</header>
-	
-		<main>
-			<div class="jumbotron">
-				<h1>MORSimulator</h1>
-				<p>MORSimulator is the future of robotic simulation. Design and program your robot using any PC, tablet or smartphone. Play, share and learn with your friends</p>
-			</div>
-			<div class="row">
-    <div class="col-sm-4">
-      <h3>Physics World</h3>
-      <p>MORSimulator consists of a virtual world where the physics laws are enforced on objects, 
-      thus gravity and collisions are present.</p>
-      <p>The user can design its own environment by adding walls, ramps, etc.</p>
-    </div>
-    <div class="col-sm-4">
-      <h3>Robotic API</h3>
-      <p>The simulator provides a set of motors and sensors that you can use.</p>
-      <p>An API is available to read the robot parameters and act on the its actuators.</p>
-    </div>
-    <div class="col-sm-4">
-      <h3>Multiplayer Mode</h3> 
-      <p>Invite your friends to your virtual world, watch the robots cooperate or compete between each other.</p>
-      <p>You can set goals and objectives for your world: play football, build a house, etc.</p>
-    </div>
-			</div>
-		</main>
-	
-		<footer>
-			<% include ../partials/footer %>
-		</footer>
-		
-	</div>
-</body>
+      ga('create', 'UA-62776064-1', 'auto');
+      ga('send', 'pageview');
+
+    </script--><% } %>
+  </head>
+  <body>
+    <script src="cannon.js"></script>
+    <script src="cannon.demo.js"></script>
+    <script src="dat.gui.js"></script>
+    <script src="Three.js"></script>
+    <script src="TrackballControls.js"></script>
+    <script src="Detector.js"></script>
+    <script src="Stats.js"></script>
+    <script src="smoothie.js"></script>
+    <script src="viewer.js"></script>
+  </body>
 </html>

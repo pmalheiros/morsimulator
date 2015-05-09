@@ -11,21 +11,21 @@ app.use('/', express.static(__dirname + '/public'));
 // index page
 app.get('/', function(req, res) {
 	res.render('pages/index', {
-		config: config
+		config: config.client
 	});
 });
 
 // info page
 app.get('/info', function(req, res) {
 	res.render('pages/info', {
-		config: config
+		config: config.client
 	});
 });
 
 // about page
 app.get('/info/about', function(req, res) {
 	res.render('pages/about', {
-		config: config
+		config: config.client
 	});
 });
 

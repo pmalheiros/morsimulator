@@ -19,6 +19,10 @@ try {
 config.web = {};
 config.web.port = process.env.IP || 3000;
 
+// Set env var "$MORS_GANALYTICS = <script>...</script>" to have google analytics
+config.client = {};
+config.client.gAnalytics = process.env.MORS_GANALYTICS;
+
 // config.twitter = {};
 // config.redis = {};
 // config.default_stuff =  ['red','green','blue','apple','yellow','orange','politics'];

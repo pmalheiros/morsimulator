@@ -6,3 +6,8 @@ body {
     overflow: hidden;
     font-family: Monospace;
 }
+
+canvas {
+    display: block; /* fix necessary to remove space at bottom of canvas */
+    margin: 0;
+}

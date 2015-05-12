@@ -495,7 +495,7 @@ CANNON.Demo = function(options){
         info.style.top = '10px';
         info.style.width = '100%';
         info.style.textAlign = 'center';
-        info.innerHTML = '<a href="http://www.morsimulator.com">MORSimulator</a> - multiplayer online robotic simulator<br>' +
+        info.innerHTML = '<a href="/">MORSimulator</a> - multiplayer online robotic simulator<br>' +
                          '<b>Coming soon:</b> check <a href="/info">the info page</a> for more details.';
         container.appendChild( info );
 

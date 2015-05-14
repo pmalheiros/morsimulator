@@ -1,5 +1,5 @@
 $('head').append('<meta name="viewport" content="width=device-width, initial-scale=1">');
-$('head').append('<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/spacelab/bootstrap.min.css">');
+$('head').append('<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/darkly/bootstrap.min.css">');
 $('head').append('<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>');
 
 $('body').load('mobile-body.html', function (){

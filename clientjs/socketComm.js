@@ -22,11 +22,11 @@ socket.on("receiveOrientation", function(data) {
   vehicle.setBrake(0, 2);
   vehicle.setBrake(0, 3);
   
-  var maxForce = -data.gamma*20;
+  var maxForce = Math.min(Math.max(-data.gamma*20,-1000),1000);
   vehicle.applyEngineForce(maxForce, 2);
   vehicle.applyEngineForce(maxForce, 3);
   
-  var maxSteerVal = -data.beta/100;
+  var maxSteerVal = Math.min(Math.max(-data.beta/100,-0.5),0.5);
   vehicle.setSteeringValue(maxSteerVal, 0);
   vehicle.setSteeringValue(maxSteerVal, 1);  
 });

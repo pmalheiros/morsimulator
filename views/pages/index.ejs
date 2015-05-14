@@ -3,19 +3,20 @@
   <head>
     <title>MORSimulator - multiplayer online robotic simulator</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="css/style.css" type="text/css"/>
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="//cdn.socket.io/socket.io-1.3.5.js"></script>
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+        if(/Android|webOS|iPhone|iPad|iPod|Phone|BlackBerry/i.test(navigator.userAgent) ) {
+          $.getScript("mobile.js");
+        } else {
+          $.getScript("desktop.js");
+        }
+      });
+    </script>
     <%- config.gAnalytics %>
   </head>
   <body>
-    <script src="cannon.js"></script>
-    <script src="cannon.demo.js"></script>
-    <script src="dat.gui.js"></script>
-    <script src="Three.js"></script>
-    <script src="TrackballControls.js"></script>
-    <script src="Detector.js"></script>
-    <script src="Stats.js"></script>
-    <script src="smoothie.js"></script>
-    <script src="viewer.js"></script>
   </body>
 </html>

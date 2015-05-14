@@ -446,6 +446,7 @@ CANNON.Demo = function(options){
     function init() {
 
         container = document.createElement( 'div' );
+        container.id = "container";
         document.body.appendChild( container );
 
         // Camera
@@ -491,6 +492,7 @@ CANNON.Demo = function(options){
 
         // Add info
         info = document.createElement( 'div' );
+        info.id = 'divInfoText';
         info.style.position = 'absolute';
         info.style.top = '10px';
         info.style.width = '100%';
@@ -577,7 +579,8 @@ CANNON.Demo = function(options){
 
         if(window.dat!=undefined){
             gui = new dat.GUI();
-
+            gui.close();
+            
             gui.domElement.parentNode.style.zIndex=120;
 
             // Render mode

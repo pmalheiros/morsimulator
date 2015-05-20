@@ -12,6 +12,9 @@ var config = require('./serverjs/config');
 
 var app = express();
 var server = http.createServer(app);
+
+var ExpressPeerServer = require('peer').ExpressPeerServer;
+
 var io = socketio.listen(server);
 
 // set the view engine to ejs
@@ -28,9 +31,27 @@ app.get('/', function(req, res) {
 });
 
 // index page only in desktop mode
-app.get('/desktop', function(req, res) {
+app.get('/desktop.html', function(req, res) {
 	res.render('pages/desktop', {
 		config: config.client
+	});
+});
+
+// index page in peer server mode
+app.get('/server.html', function(req, res) {
+	res.render('pages/server', {
+		config: config.client,
+		serverPort: config.web.port,
+		serverHost: config.web.host
+	});
+});
+
+// index page in peer client mode
+app.get('/client.html', function(req, res) {
+	res.render('pages/client', {
+		config: config.client,
+		serverPort: config.web.port,
+		serverHost: config.web.host
 	});
 });
 
@@ -77,7 +98,7 @@ io.on('connection', function(socket){
       socket.emit('error-msg', "Sorry... I couldn't find that connection");
     }
   });
-  
+
   socket.on("mobileDisconnect", function (data) {
     console.log('releasing desktop server connection on request- ' + peerID);
     sockets[peerID].emit('mobileDeviceDisconnect', '444');
@@ -86,7 +107,7 @@ io.on('connection', function(socket){
     }
     peerID = null;
   });
-  
+
   socket.on("ondeviceorientation", function(data) {
     if (sockets[peerID]) {
       sockets[peerID].emit("receiveOrientation", data);
@@ -132,6 +153,12 @@ function socketConnect(socket) {
   console.log("Server: New connection - " + socket.id + " - " + id);
   return id;
 };
+
+var options = {
+  debug: true
+};
+
+app.use('/api', ExpressPeerServer(server, options));
 
 server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function () {
   var host = server.address().address;

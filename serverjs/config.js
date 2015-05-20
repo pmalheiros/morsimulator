@@ -15,9 +15,15 @@ try {
   console.log('Config ini file error: ' + e);
 }
 
-// values not read from config file, i.e., environment variable
-config.web = {};
-config.web.port = process.env.IP || 3000;
+if (typeof config.web == 'undefined') {
+  config.web = {};
+}
+if (typeof config.web.port == 'undefined') {
+  config.web.port = process.env.PORT || 3000;
+}
+if (typeof config.web.host == 'undefined') {
+  config.web.host = (process.env.IP || 'localhost');
+}
 
 // Set env var "$MORS_GANALYTICS = <script>...</script>" to have google analytics
 config.client = {};

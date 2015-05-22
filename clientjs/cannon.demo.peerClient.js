@@ -441,6 +441,9 @@ CANNON.Demo = function(options){
     var windowHalfY = window.innerHeight / 2;
 
     var peer, conn;
+    var vehicleId = -1;
+    var curOrientation = {};
+    var resetOrientation = {};
 
     init();
     initPeerClient();
@@ -451,26 +454,77 @@ CANNON.Demo = function(options){
       var divElem = document.getElementById('divPeerPars');
       var serverHost = divElem.getAttribute('serverHost');
       var serverPort = divElem.getAttribute('serverPort');
+      document.getElementById("peerRId").value = divElem.innerHTML;
       var peer = new Peer({host: serverHost, port: serverPort, path: '/api'});
 
       peer.on('open', function(id){
         //$('#pid').text(id);
         //document.title = id;
+        
       });
       // Await connections from others
       //peer.on('connection', connect);
 
       // Conect to a peer
       document.getElementById("peerConnect").onclick = function() {
-        var c = peer.connect(document.getElementById("peerRId").value);
-        c.on('open', function(){
-          clientConnection(c);
-        });
-        c.on('error', function(err){ alert(err) });
+        if (connectionExists()) {
+          resetOrientation = curOrientation;
+        } else {
+          var c = peer.connect(document.getElementById("peerRId").value);
+          c.on('open', function(){
+            clientConnection(c);
+          });
+          c.on('error', function(err){
+            window.removeEventListener('deviceorientation', emitOrientation, false);
+            alert(err);
+          });
+          
+          if(/Android|webOS|iPhone|iPad|iPod|Phone|BlackBerry/i.test(navigator.userAgent) ) {
+            ToggleFullScreen();
+          }
+        }
       };
-
+      
     }
-
+    
+		function ToggleFullScreen() {
+			if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement) {
+				if (document.documentElement.requestFullscreen)
+					document.documentElement.requestFullscreen();
+				else if (document.documentElement.mozRequestFullScreen)
+					document.documentElement.mozRequestFullScreen();
+				else if (document.documentElement.webkitRequestFullscreen)
+					document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+			}
+			else {
+				if (document.cancelFullScreen)
+					document.cancelFullScreen();
+				else if (document.mozCancelFullScreen)
+					document.mozCancelFullScreen();
+				else if (document.webkitCancelFullScreen)
+					document.webkitCancelFullScreen();
+			}
+		}
+    
+    function emitOrientation(event) {
+      // document.title = 'sending data';
+      curOrientation = {
+        alpha: event.alpha,
+        beta: event.beta,
+        gamma: event.gamma
+      }
+      if (typeof resetOrientation.alpha == 'undefined') {
+        // First run
+        resetOrientation = curOrientation;
+      }
+      var data = {
+        alpha: curOrientation.alpha - resetOrientation.alpha,
+        beta: curOrientation.beta - resetOrientation.beta,
+        gamma: curOrientation.gamma - resetOrientation.gamma
+      }
+      conn.send(data);
+    }
+      
     function connectionExists() {return typeof conn != "undefined";}
 
     function clientConnection(c) {
@@ -479,37 +533,53 @@ CANNON.Demo = function(options){
         c.close();
       } else {
         conn = c;
+        //document.getElementById("peerConnect").style.display = 'none';
+        document.getElementById("peerConnect").value = 'Reset Orientation'
+        window.addEventListener('deviceorientation', emitOrientation, false);
         conn.on('data', function(data){
-          // objects data is received here
-          //$('#messages').append('<br>' + conn.peer + ':<br>' + data);
-          // console.log(data);
-
-
-          // sphereMesh.position.x = data.sphereX;
-          // sphereMesh.position.y = data.sphereY;
-          // sphereMesh.position.z = data.sphereZ;
-          var j = 0;
-          for (var i=0; i < data.posX.length; i++) {
-            visuals[i].position.x = data.posX[i];
-            visuals[i].position.y = data.posY[i];
-            visuals[i].position.z = data.posZ[i];
-            if (data.quatIdx[j] == i) {
-              visuals[i].quaternion.x = data.quatX[j];
-              visuals[i].quaternion.y = data.quatY[j];
-              visuals[i].quaternion.z = data.quatZ[j];
-              visuals[i].quaternion.w = data.quatW[j];
-              j++;
+          if (typeof data.vehicle != 'undefined') {
+            vehicleId = data.vehicle;
+          } else {
+            // objects data is received here
+            var j = 0;
+            for (var i=0; i < data.posX.length; i++) {
+              visuals[i].position.x = data.posX[i];
+              visuals[i].position.y = data.posY[i];
+              visuals[i].position.z = data.posZ[i];
+              if (data.quatIdx[j] == i) {
+                visuals[i].quaternion.x = data.quatX[j];
+                visuals[i].quaternion.y = data.quatY[j];
+                visuals[i].quaternion.z = data.quatZ[j];
+                visuals[i].quaternion.w = data.quatW[j];
+                j++;
+              }
+            }
+            if (vehicleId >= 0) {
+              updateCamera();
             }
           }
-          // document.title = 'receiving data';
         });
         conn.on('close', function(err){
           alert(conn.peer + ' server has closed the connection.');
+          window.removeEventListener('deviceorientation', emitOrientation, false);
           delete conn;
           conn = undefined;
         });
       }
     }
+
+	function updateCamera() {
+		// var euler = new THREE.Euler( 0, 0, 0, 'ZYX' );
+
+		// euler.x = visuals[0].rotation.x;
+		// euler.y = visuals[0].rotation.y;
+		// camera.quaternion.setFromEuler( euler );
+
+    camera.lookAt( visuals[vehicleId].localToWorld(new THREE.Vector3( 10, 0, 0)) );
+
+		camera.position.copy( visuals[vehicleId].localToWorld(new THREE.Vector3( -20, 0, 9)) );
+
+	};
 
     function init() {
 
@@ -565,6 +635,7 @@ CANNON.Demo = function(options){
         info.style.top = '10px';
         info.style.width = '100%';
         info.style.textAlign = 'center';
+        info.style.display = "none";
         info.innerHTML = '<a href="/">MORSimulator</a> - multiplayer online robotic simulator<br>' +
                          '<b>Coming soon:</b> check <a href="/info">the info page</a> for more details.';
         container.appendChild( info );
@@ -573,10 +644,10 @@ CANNON.Demo = function(options){
         peerInfo = document.createElement( 'div' );
         peerInfo.id = 'divPeerInfo';
         peerInfo.style.position = 'absolute';
-        peerInfo.style.bottom = '4px';
-        peerInfo.style.right = '4px';
+        peerInfo.style.top = '4px';
+        peerInfo.style.left = '4px';
         peerInfo.style.zIndex = 140;
-        peerInfo.innerHTML = '<input type="text" id="peerRId" placeholder="Server id"><input type="button" value="Connect" id="peerConnect">';
+        peerInfo.innerHTML = '<input type="text" id="peerRId" placeholder="Server id">&nbsp;<input type="button" value="Connect" id="peerConnect">';
         container.appendChild( peerInfo );
 
         document.addEventListener('mousemove',onDocumentMouseMove);
@@ -652,6 +723,7 @@ CANNON.Demo = function(options){
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.bottom = '0px';
+        stats.domElement.style.right = '0px';
         stats.domElement.style.zIndex = 100;
         container.appendChild( stats.domElement );
 
@@ -660,6 +732,7 @@ CANNON.Demo = function(options){
             gui.close();
 
             gui.domElement.parentNode.style.zIndex=120;
+            gui.domElement.parentNode.firstChild.style.opacity=0;
 
             // Render mode
             var rf = gui.addFolder('Rendering');
@@ -753,21 +826,21 @@ CANNON.Demo = function(options){
             sceneFolder.open();
         }
 
-        // Trackball controls
-        controls = new THREE.TrackballControls( camera, renderer.domElement );
-        controls.rotateSpeed = 1.0;
-        controls.zoomSpeed = 1.2;
-        controls.panSpeed = 0.2;
-        controls.noZoom = false;
-        controls.noPan = false;
-        controls.staticMoving = false;
-        controls.dynamicDampingFactor = 0.3;
-        var radius = 100;
-        controls.minDistance = 0.0;
-        controls.maxDistance = radius * 1000;
-        //controls.keys = [ 65, 83, 68 ]; // [ rotateKey, zoomKey, panKey ]
-        controls.screen.width = SCREEN_WIDTH;
-        controls.screen.height = SCREEN_HEIGHT;
+        // // Trackball controls
+        // controls = new THREE.TrackballControls( camera, renderer.domElement );
+        // controls.rotateSpeed = 1.0;
+        // controls.zoomSpeed = 1.2;
+        // controls.panSpeed = 0.2;
+        // controls.noZoom = false;
+        // controls.noPan = false;
+        // controls.staticMoving = false;
+        // controls.dynamicDampingFactor = 0.3;
+        // var radius = 100;
+        // controls.minDistance = 0.0;
+        // controls.maxDistance = radius * 1000;
+        // //controls.keys = [ 65, 83, 68 ]; // [ rotateKey, zoomKey, panKey ]
+        // controls.screen.width = SCREEN_WIDTH;
+        // controls.screen.height = SCREEN_HEIGHT;
     }
 
     var t = 0, newTime, delta;
@@ -818,14 +891,14 @@ CANNON.Demo = function(options){
         camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
         camera.updateProjectionMatrix();
 
-        controls.screen.width = SCREEN_WIDTH;
-        controls.screen.height = SCREEN_HEIGHT;
+        //controls.screen.width = SCREEN_WIDTH;
+        //controls.screen.height = SCREEN_HEIGHT;
 
         camera.radius = ( SCREEN_WIDTH + SCREEN_HEIGHT ) / 4;
     }
 
     function render(){
-        controls.update();
+        //controls.update();
         renderer.clear();
         renderer.render( that.scene, camera );
     }
@@ -841,10 +914,10 @@ CANNON.Demo = function(options){
             case 104: // h - toggle widgets
                 if(stats.domElement.style.display=="none"){
                     stats.domElement.style.display = "block";
-                    info.style.display = "block";
+                    //info.style.display = "none";
                 } else {
                     stats.domElement.style.display = "none";
-                    info.style.display = "none";
+                    //info.style.display = "none";
                 }
                 break;
 

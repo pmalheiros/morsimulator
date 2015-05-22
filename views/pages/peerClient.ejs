@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MORSimulator - multiplayer online robotic simulator</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/style.css" type="text/css"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <%- config.gAnalytics %>
+  </head>
+  <body>
+    <script>
+      if (window.location.protocol != "http:")
+        window.location.href = "http:" + window.location.href.substring(window.location.protocol.length);
+    </script>
+    <div id="divPeerPars" serverHost="<%= serverHost %>" serverPort="<%= serverPort %>" style="display: none;"></div>
+    <script>
+      function getParameterByName(name) {
+          name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+          var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+              results = regex.exec(location.search);
+          return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+      var selServer = getParameterByName('server');
+      document.getElementById('divPeerPars').innerHTML = selServer;
+    </script>
+    <script src="/js/cannon.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.14/peer.min.js"></script>
+    <script src="/js/cannon.demo.peerClient.js"></script>
+    <script src="/js/dat.gui.js"></script>
+    <script src="/js/Three.js"></script>
+    <!--script src="TrackballControls.js"></script-->
+    <script src="/js/Detector.js"></script>
+    <script src="/js/Stats.js"></script>
+    <script src="/js/smoothie.js"></script>
+    <script src="/js/viewer.peer.js"></script>
+  </body>
+</html>

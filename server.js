@@ -20,7 +20,7 @@ var io = socketio.listen(server);
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 
-app.use('/', express.static(path.join(__dirname, 'clientjs')));
+app.use('/js', express.static(path.join(__dirname, 'clientjs')));
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 // index page
@@ -38,8 +38,8 @@ app.get('/desktop.html', function(req, res) {
 });
 
 // index page in peer server mode
-app.get('/server.html', function(req, res) {
-	res.render('pages/server', {
+app.get('/multiplayer/peerServer.html', function(req, res) {
+	res.render('pages/peerServer', {
 		config: config.client,
 		serverPort: config.web.port,
 		serverHost: config.web.host
@@ -47,8 +47,8 @@ app.get('/server.html', function(req, res) {
 });
 
 // index page in peer client mode
-app.get('/client.html', function(req, res) {
-	res.render('pages/client', {
+app.get('/multiplayer/peerClient.html', function(req, res) {
+	res.render('pages/peerClient', {
 		config: config.client,
 		serverPort: config.web.port,
 		serverHost: config.web.host
@@ -62,8 +62,15 @@ app.get('/info', function(req, res) {
 	});
 });
 
+// info page
+app.get('/multiplayer', function(req, res) {
+	res.render('pages/multiplayer', {
+		config: config.client
+	});
+});
+
 // about page
-app.get('/info/about', function(req, res) {
+app.get('/about', function(req, res) {
 	res.render('pages/about', {
 		config: config.client
 	});

@@ -9,9 +9,9 @@
     <script type="text/javascript">
       $(document).ready(function(){
         if(/Android|webOS|iPhone|iPad|iPod|Phone|BlackBerry/i.test(navigator.userAgent) ) {
-          $.getScript("mobile.js");
+          $.getScript("/js/mobile.js");
         } else {
-          $.getScript("desktop.js");
+          $.getScript("/js/desktop.js");
         }
       });
     </script>

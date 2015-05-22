@@ -172,7 +172,7 @@ CANNON.Demo = function(options){
         }
     }
 
-    var light, scene, ambient, stats, info;
+    var light, scene, ambient, stats, info, peerInfo;
 
     function setRenderMode(mode){
         if(renderModes.indexOf(mode) === -1){
@@ -440,8 +440,8 @@ CANNON.Demo = function(options){
     var windowHalfX = window.innerWidth / 2;
     var windowHalfY = window.innerHeight / 2;
 
-    var peer, conn;
-    var prevTimeEmit;
+    var peer, conn1, conn2;
+    var prevTimeEmit = 0;
 
     init();
     initPeerServer();
@@ -456,28 +456,89 @@ CANNON.Demo = function(options){
       peer.on('open', function(id){
         // document.title = id;
         document.getElementById("peerPId").value = id;
+        document.getElementById("peerRIdLink").setAttribute('href','peerClient.html?server='+id);
       });
       // Await connections from others
       peer.on('connection', serverConnection);
     }
 
-    function connectionExists() {return typeof conn != "undefined";}
+    function connectionExists(conn) {return typeof conn != "undefined";}
 
     function serverConnection(c) {
-      if (connectionExists()) {
+      if (connectionExists(conn1) && connectionExists(conn2)) {
         // another client trying to connect
         c.close();
       } else {
-        conn = c;
-        prevTimeEmit = new Date().getTime();
-        conn.on('data', function(data){
-          // this should not receive any data
-          //$('#messages').append('<br>' + conn.peer + ':<br>' + data);
-        });
-        conn.on('close', function(err){
-          delete conn;
-          conn = undefined;
-        });
+        if (!connectionExists(conn1)) {
+          conn1 = c;
+          conn1.on('open', function(data){
+            // this should not receive any data
+            //$('#messages').append('<br>' + conn.peer + ':<br>' + data);
+            var data = {
+              vehicle: 5
+            };
+            conn1.send(data);
+          });
+          
+          conn1.on('data', function(data){
+            // document.title = 'receiving data';
+            vehicle2.setBrake(0, 0);
+            vehicle2.setBrake(0, 1);
+            vehicle2.setBrake(0, 2);
+            vehicle2.setBrake(0, 3);
+            
+            var maxForce = Math.min(Math.max(-data.gamma*20,-1000),1000);
+            vehicle2.applyEngineForce(maxForce, 2);
+            vehicle2.applyEngineForce(maxForce, 3);
+            
+            var maxSteerVal = Math.min(Math.max(-data.beta/80,-0.5),0.5);
+            vehicle2.setSteeringValue(maxSteerVal, 0);
+            vehicle2.setSteeringValue(maxSteerVal, 1);  
+          });
+
+          conn1.on('close', function(err){
+            var brakeForce = 100000;
+            vehicle2.setBrake(brakeForce, 0);
+            vehicle2.setBrake(brakeForce, 1);
+            vehicle2.setBrake(brakeForce, 2);
+            vehicle2.setBrake(brakeForce, 3);
+            delete conn1;
+            conn1 = undefined;
+          });
+        } else {
+          conn2 = c;
+          conn2.on('open', function(data){
+            var data = {
+              vehicle: 0
+            };
+            conn2.send(data);
+          });
+          
+          conn2.on('data', function(data){
+            vehicle1.setBrake(0, 0);
+            vehicle1.setBrake(0, 1);
+            vehicle1.setBrake(0, 2);
+            vehicle1.setBrake(0, 3);
+            
+            var maxForce = Math.min(Math.max(-data.gamma*20,-1000),1000);
+            vehicle1.applyEngineForce(maxForce, 2);
+            vehicle1.applyEngineForce(maxForce, 3);
+            
+            var maxSteerVal = Math.min(Math.max(-data.beta/100,-0.5),0.5);
+            vehicle1.setSteeringValue(maxSteerVal, 0);
+            vehicle1.setSteeringValue(maxSteerVal, 1);  
+          });
+          
+          conn2.on('close', function(err){
+            var brakeForce = 100000;
+            vehicle1.setBrake(brakeForce, 0);
+            vehicle1.setBrake(brakeForce, 1);
+            vehicle1.setBrake(brakeForce, 2);
+            vehicle1.setBrake(brakeForce, 3);
+            delete conn2;
+            conn2 = undefined;
+          });
+        }
       }
     }
 
@@ -535,6 +596,7 @@ CANNON.Demo = function(options){
         info.style.top = '10px';
         info.style.width = '100%';
         info.style.textAlign = 'center';
+        info.style.display = "none";
         info.innerHTML = '<a href="/">MORSimulator</a> - multiplayer online robotic simulator<br>' +
                          '<b>Coming soon:</b> check <a href="/info">the info page</a> for more details.';
         container.appendChild( info );
@@ -543,10 +605,10 @@ CANNON.Demo = function(options){
         peerInfo = document.createElement( 'div' );
         peerInfo.id = 'divPeerInfo';
         peerInfo.style.position = 'absolute';
-        peerInfo.style.bottom = '4px';
-        peerInfo.style.right = '4px';
+        peerInfo.style.top = '4px';
+        peerInfo.style.left = '4px';
         peerInfo.style.zIndex = 140;
-        peerInfo.innerHTML = '<input type="text" id="peerPId" placeholder="Server id">';
+        peerInfo.innerHTML = '<input type="text" id="peerPId" placeholder="Server id" disabled>&nbsp;<a href="#" style="color: #2244AA; background: #CCCCCC;" id="peerRIdLink">Share link</a>';
         container.appendChild( peerInfo );
 
         document.addEventListener('mousemove',onDocumentMouseMove);
@@ -622,6 +684,7 @@ CANNON.Demo = function(options){
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.bottom = '0px';
+        stats.domElement.style.right = '0px';
         stats.domElement.style.zIndex = 100;
         container.appendChild( stats.domElement );
 
@@ -649,10 +712,10 @@ CANNON.Demo = function(options){
             });
             rf.add(settings,'shadows').onChange(function(shadows){
                 if(shadows){
-                    renderer.shadowMapAutoUpdate = true;
+                  renderer.shadowMapAutoUpdate = true;
                 } else {
-                    renderer.shadowMapAutoUpdate = false;
-                    renderer.clearTarget( light.shadowMap );
+                  renderer.shadowMapAutoUpdate = false;
+                  renderer.clearTarget( light.shadowMap );
                 }
             });
             rf.add(settings,'aabbs');
@@ -740,7 +803,7 @@ CANNON.Demo = function(options){
         controls.screen.height = SCREEN_HEIGHT;
     }
 
-    var t = 0, newTime, delta;
+    var t = 0, newTime, delta, renderFirstRun = true;
 
     function animate(){
         requestAnimationFrame( animate );
@@ -750,6 +813,12 @@ CANNON.Demo = function(options){
         }
         render();
         peerDataSend();
+        checkVehicleFall();
+        if (renderFirstRun) {
+          renderer.shadowMapAutoUpdate = false;
+          renderer.clearTarget( light.shadowMap );
+          renderFirstRun = false;
+        }
         stats.update();
     }
 
@@ -804,7 +873,7 @@ CANNON.Demo = function(options){
       var curTime = new Date().getTime();
       // document.title = 'sending data';
       // send data at 30fps, not 60fps
-      if (connectionExists() && (curTime - prevTimeEmit > 25)){
+      if ((connectionExists(conn1) || (connectionExists(conn2))) && (curTime - prevTimeEmit > 25)){
         prevTimeEmit = curTime;
         // var data = {
         //   sphereX: sphereMesh.position.x,
@@ -846,11 +915,25 @@ CANNON.Demo = function(options){
           quatW: quaternionW,
           quatIdx: quaternionIdx
         };
-        conn.send(data);
+        if (connectionExists(conn1)) {
+          conn1.send(data);
+        }
+        if (connectionExists(conn2)) {
+          conn2.send(data);
+        }
         // document.title = 'sending data';
       }
     }
 
+    function checkVehicleFall() {
+      var b1 = bodies[0];
+      var b2 = bodies[5];
+      if ((typeof b1 != 'undefined') && (typeof b2 != 'undefined')) {
+        if ((b1.position.z < -6) || (b2.position.z < -6)) {
+          restartCurrentScene();
+        }
+      }
+    }
 
     document.addEventListener('keypress',function(e){
 
@@ -863,10 +946,10 @@ CANNON.Demo = function(options){
             case 104: // h - toggle widgets
                 if(stats.domElement.style.display=="none"){
                     stats.domElement.style.display = "block";
-                    info.style.display = "block";
+                    //info.style.display = "none";
                 } else {
                     stats.domElement.style.display = "none";
-                    info.style.display = "none";
+                    //info.style.display = "none";
                 }
                 break;
 

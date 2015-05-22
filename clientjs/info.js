@@ -10,7 +10,8 @@ $(function()
   infoBox.title = 'MORSimulator Information';
   infoBox.innerHTML = '<p>Use the <b>arrows</b> to control the vehicle, <b>b</b> to brake, <b>space bar</b> to reset the vehicle.</p>' +
                       '<br><p>You can remotely control the vehicle from your mobile or tablet, visit <b>www.morsimulator.com</b> on a remote device and enter the following code:</p>' +
-                      '<form><b>Server ID:</b> <input type="text" id="connectionID" disabled></input></form>';
+                      '<form><b>Server ID:</b> <input type="text" id="connectionID" disabled></input></form><br>'+
+                      '<p>Check the <a href="/info">info page</a> for more details.</p>';
   divContainer.appendChild( infoBox );    
     
 	 $("#infoBox")

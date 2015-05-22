@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include ../partials/head %>
+</head>
+<body>
+	<div class="container">
+	
+		<header>
+			<% include ../partials/header %>
+		</header>
+	
+		<main>
+			<div class="row">
+				<div class="col-sm-12">
+					
+					<h2>Multiplayer Demo</h2>
+					<p>This is a brief demostration of interaction between a <a href="/multiplayer/peerServer.html">MORSimulator server</a> running in a PC
+					which can be connected with <a href="/multiplayer/peerClient.html">two mobile clients</a>.</p>
+					<p>It is using the recent <a href="http://en.wikipedia.org/wiki/WebRTC">WebRTC specification</a> to establish a real P2P connection
+					between the PC server and the mobile client. This only works with the latest internet browsers, i.e. recent <b>Chrome</b> (desktop or mobile) or <b>Firefox</b>.
+					This was not tested in IE, but it won't probably work according to <a href="http://peerjs.com/">PeerJS page</a>.</p>
+					<h3>What is happening here?</h3>
+					<p>A virtual world is being processed in the <a href="/multiplayer/peerServer.html">server instance</a> once <it></it> is started. It has two vehicles 
+					that can interact between them. The physics engine makes the two vehicles accelerate, break and turn, and of course they can crash against each other.
+					The <a href="/multiplayer/peerClient.html">mobile client</a> receives the cars positions through the P2P connection and displays the world via WebGL. It also feeds back the device orientation 
+					to the server that computes the corresponding forces to the car wheels.</p>
+					<p>As expected the mobile devices do little of the processing because the world computation is all done remotely.</p>
+					<h3>Can I try?</h3>
+					<ol>
+					  <li>Open a <a href="/multiplayer/peerServer.html">server instance</a> in an PC.</li>
+					  <li>Check the server ID in the top left corner, or you can copy and share the link next to it.</li>
+					  <li>Open a <a href="/multiplayer/peerClient.html">client instance</a> in a mobile device.</li>
+					  <li>Insert your server ID in the top left corner and connect. Best results in <b>locked landscape</b> mode. Enjoy!</li>
+					</ol>
+				</div>
+			</div>
+		</main>
+	
+		<footer>
+			<% include ../partials/footer %>
+		</footer>
+		
+	</div>
+</body>
+</html>

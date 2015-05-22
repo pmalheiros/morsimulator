@@ -701,6 +701,7 @@ CANNON.Demo = function(options){
             updatePhysics();
         }
         render();
+        checkVehicleFall();
         stats.update();
     }
 
@@ -749,6 +750,15 @@ CANNON.Demo = function(options){
         controls.update();
         renderer.clear();
         renderer.render( that.scene, camera );
+    }
+    
+    function checkVehicleFall() {
+      var b = bodies[0];
+      if (typeof b != 'undefined') {
+        if (b.position.z < -6) {
+          restartCurrentScene();
+        }
+      }
     }
 
     document.addEventListener('keypress',function(e){

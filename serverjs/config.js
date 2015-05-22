@@ -19,10 +19,10 @@ if (typeof config.web == 'undefined') {
   config.web = {};
 }
 if (typeof config.web.port == 'undefined') {
-  config.web.port = process.env.PORT || 3000;
+  config.web.port = process.env.MORS_PEERPORT || process.env.PORT || 3000;
 }
 if (typeof config.web.host == 'undefined') {
-  config.web.host = (process.env.IP || 'localhost');
+  config.web.host = process.env.MORS_PEERIP || process.env.IP || 'localhost';
 }
 
 // Set env var "$MORS_GANALYTICS = <script>...</script>" to have google analytics
